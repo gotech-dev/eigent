@@ -92,6 +92,7 @@ from app.utils.toolkit.markitdown_toolkit import MarkItDownToolkit
 from app.utils.toolkit.mcp_search_toolkit import McpSearchToolkit
 from app.utils.toolkit.note_taking_toolkit import NoteTakingToolkit
 from app.utils.toolkit.notion_mcp_toolkit import NotionMCPToolkit
+from app.utils.toolkit.pandoc_toolkit import PandocToolkit
 from app.utils.toolkit.pptx_toolkit import PPTXToolkit
 from app.utils.toolkit.screenshot_toolkit import ScreenshotToolkit
 from app.utils.toolkit.terminal_toolkit import TerminalToolkit
@@ -1258,6 +1259,9 @@ async def document_agent(options: Chat):
     )
     note_toolkit = message_integration.register_toolkits(note_toolkit)
 
+    pandoc_toolkit = PandocToolkit(options.project_id, working_directory=working_directory)
+    pandoc_toolkit = message_integration.register_toolkits(pandoc_toolkit)
+
     terminal_toolkit = TerminalToolkit(
         options.project_id,
         Agents.document_agent,
@@ -1278,6 +1282,7 @@ async def document_agent(options: Chat):
         *mark_it_down_toolkit.get_tools(),
         *excel_toolkit.get_tools(),
         *note_toolkit.get_tools(),
+        *pandoc_toolkit.get_tools(),
         *terminal_toolkit.get_tools(),
         *google_drive_tools,
     ]
@@ -1359,6 +1364,7 @@ Your capabilities include:
     - Modify existing files with automatic backup functionality
     - Support for mathematical expressions in PDF documents through LaTeX
     rendering
+    - Create formatted DOCX files using a reference template/style using `convert_text_to_docx`.
 
 - PowerPoint Presentation Creation:
     - Create professional PowerPoint presentations with title slides and
@@ -1430,7 +1436,15 @@ When working with documents, you should:
 appropriate sheet naming conventions
 - To include data visualizations, write and execute Python scripts using
   the terminal. Use libraries like `plotly` to generate charts and
+  libraries like `plotly` to generate charts and
   graphs, and save them as image files that can be embedded in documents.
+- For DOCX Style Transfer:
+  - If the user provides a "Style File", "Template File", or "Sample File" (File 1) and
+    content (File 2) and asks for the new document to have the same format, you MUST use
+    `convert_text_to_docx` tool.
+  - Pass the content (as markdown text) to `content` and the absolute path to File 1 to `reference_doc_path`.
+  - Do NOT try to manually copy styles using other tools.
+
 </document_creation_workflow>
 
 Your goal is to help users efficiently create, modify, and manage their
@@ -1453,6 +1467,9 @@ supported formats including advanced spreadsheet functionality.
             MarkItDownToolkit.toolkit_name(),
             ExcelToolkit.toolkit_name(),
             NoteTakingToolkit.toolkit_name(),
+            ExcelToolkit.toolkit_name(),
+            NoteTakingToolkit.toolkit_name(),
+            PandocToolkit.toolkit_name(),
             TerminalToolkit.toolkit_name(),
             GoogleDriveMCPToolkit.toolkit_name(),
         ],
