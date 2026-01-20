@@ -86,3 +86,40 @@ def test_convert_text_to_docx_failure(mock_subprocess, mock_pandoc_toolkit):
     
     assert "Error running pandoc" in result
     assert "Pandoc error" in result
+@patch("subprocess.run")
+def test_convert_text_to_docx_with_extra_args(mock_subprocess, mock_pandoc_toolkit):
+    mock_subprocess.return_value = MagicMock(returncode=0, stderr="")
+    
+    content = "# Extra Args"
+    filename = "extra.docx"
+    extra = ["--toc", "--number-sections"]
+    
+    result = mock_pandoc_toolkit.convert_text_to_docx(content, filename, extra_args=extra)
+    
+    assert "Successfully created document" in result
+    
+    args, kwargs = mock_subprocess.call_args
+    cmd = args[0]
+    assert "--toc" in cmd
+    assert "--number-sections" in cmd
+
+@patch("app.utils.toolkit.standardize_styles.standardize_reference_styles")
+def test_standardize_reference_success(mock_standardize, mock_pandoc_toolkit):
+    ref_path = "/tmp/ref.docx"
+    out_path = "/tmp/ref_standard.docx"
+    
+    result = mock_pandoc_toolkit.standardize_reference(ref_path, out_path)
+    
+    assert result == out_path
+    mock_standardize.assert_called_once_with(ref_path, out_path)
+
+@patch("app.utils.toolkit.standardize_styles.standardize_reference_styles")
+def test_standardize_reference_default_path(mock_standardize, mock_pandoc_toolkit):
+    ref_path = "/tmp/ref.docx"
+    # Logic is: name, ext = splitext -> name + "_standard" + ext
+    expected_out = "/tmp/ref_standard.docx"
+    
+    result = mock_pandoc_toolkit.standardize_reference(ref_path)
+    
+    assert result == expected_out
+    mock_standardize.assert_called_once_with(ref_path, expected_out)

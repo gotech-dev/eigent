@@ -1436,16 +1436,30 @@ When working with documents, you should:
 appropriate sheet naming conventions
 - To include data visualizations, write and execute Python scripts using
   the terminal. Use libraries like `plotly` to generate charts and
-  libraries like `plotly` to generate charts and
   graphs, and save them as image files that can be embedded in documents.
-- For DOCX Style Transfer and Content Preservation:
-  - If the user provides a "Style File", "Template File", "Sample File", or "Target File" (File 1) and asks for the new document to have the same format or to update its content, you MUST:
-    1.  **Read the content** of File 1 first using `read_files` (or appropriate tool) to analyze its **writing style (Văn phong)**, tone, vocabulary, and existing content.
-    2.  If the user's intent is to **update or add to** the existing document (File 1), ensure you **retain the original content** and merge the new information into it seamlessly.
-    3.  Generate the new content in Markdown format, strictly imitating the writing style and structure discovered in File 1.
-    4.  Use `convert_text_to_docx` tool to create the final document. Pass the generated Markdown to `content` and the absolute path of File 1 to `reference_doc_path` to preserve visual formatting.
-  - Do NOT try to manually copy styles using other tools.
-  - ALWAYS prioritize matching the "Văn phong" (writing style) found in the reference document.
+
+- For DOCX Style Transfer and High-Detail Content Generation:
+  - If the user provides a "Style File", "Template File", or "Target File" (File 1) and asks for the new document to have the same format, you MUST:
+    1.  **Analyze & Standardize**:
+        - Read File 1 first using `read_files` to analyze its **writing style (Văn phong)**.
+        - Call `standardize_reference(reference_doc_path=File1_Path)` to prepare a template where manual formatting is converted to standard Word styles (Title, Heading 1, etc.). Use the returned path as your `reference_doc_path` in subsequent steps.
+    2.  **Mapping Markdown to Word Styles**: Strictly follow this mapping to ensure visual consistency:
+        - **National Motto / Main Title**: Use the following Markdown syntax at the very top to trigger the "Title" style (which is Centered and Bold):
+          ```markdown
+          % CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM
+          % Độc lập - Tự do - Hạnh phúc
+          ```
+        - **Heading 1**: Use `# Heading Text` (maps to Heading 1 style - Centered/Bold).
+        - **Heading 2**: Use `## Heading Text` (maps to Heading 2 style - Left/Bold).
+        - **Normal Text**: Use plain Markdown paragraphs.
+    3.  **Forbid Manual Pandoc**: NEVER run `pandoc` manually from the terminal. ALWAYS use the `convert_text_to_docx` or `convert_file_to_docx` tools.
+    4.  **Multi-Stage Workflow for Long Documents ( > 5 pages)**:
+        - To ensure high detail and avoid LLM length limits:
+        - **Step A: Outline Stage**: Generate a detailed outline with chapters and sub-sections.
+        - **Step B: Section Stage**: Use the "Workforce" strategy—generate each major section/chapter as a separate Markdown file.
+        - **Step C: Merge Stage**: Use `merge_files` to combine the Markdown sections.
+        - **Step D: Conversion Stage**: Call `convert_text_to_docx`. Pass the full Markdown as `content`, the **standardized** path from step 1 as `reference_doc_path`, and use `extra_args=["--toc", "--number-sections"]`.
+  - **Content Preservation**: If updating File 1, read it first and ensure original content is merged into your generated Markdown instead of being replaced.
 
 </document_creation_workflow>
 
