@@ -19,11 +19,17 @@ export default defineConfig(({ command, mode }) => {
   return {
     resolve: {
       alias: {
-        '@': path.join(__dirname, 'src')
+        '@': path.join(__dirname, 'src'),
+        'use-sync-external-store/shim/with-selector': path.join(__dirname, 'node_modules/use-sync-external-store/shim/with-selector.js'),
+        'extend': path.join(__dirname, 'node_modules/extend/index.js'),
       },
     },
     optimizeDeps: {
-      exclude: ['@stackframe/react'],
+      exclude: [
+        '@stackframe/react',
+        'use-sync-external-store/shim/with-selector',
+        'extend'
+      ],
       include: [
         'react',
         'react-dom',
@@ -31,8 +37,6 @@ export default defineConfig(({ command, mode }) => {
         'zustand',
         'i18next',
         'react-i18next',
-        'use-sync-external-store/shim/with-selector',
-        'extend'
       ],
       esbuildOptions: {
         loader: {
