@@ -9,10 +9,14 @@ import { useAuthStore } from "./store/authStore";
 import { Toaster } from "sonner";
 import { hasStackKeys } from "./lib";
 
+import { useInstallationSetup } from "./hooks/useInstallationSetup";
+
 const HAS_STACK_KEYS = hasStackKeys();
 
 function App() {
+	console.error("[App] Rendering App component body - FORCE LOG");
 	const navigate = useNavigate();
+	useInstallationSetup(); // Global setup for backend/installation events
 	const { setInitState } = useAuthStore();
 	const [animationFinished, setAnimationFinished] = useState(false);
 	const { isFirstLaunch } = useAuthStore();
@@ -55,6 +59,8 @@ function App() {
 
 	// render main content
 	const renderMainContent = () => {
+		// Bypass animation for debugging
+
 		if (isFirstLaunch && !animationFinished) {
 			return (
 				<AnimationJson
@@ -64,6 +70,7 @@ function App() {
 			);
 		}
 		return <AppRoutes />;
+
 	};
 
 	// render wrapper

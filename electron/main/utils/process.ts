@@ -15,7 +15,7 @@ export function getBackendPath() {
     return path.join(process.resourcesPath, 'backend');
   } else {
     // development environment
-    return path.join(app.getAppPath(), 'backend');
+    return path.join(app.getAppPath(), 'server');
   }
 }
 

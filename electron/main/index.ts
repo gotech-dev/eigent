@@ -47,7 +47,10 @@ const userData = app.getPath('userData');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MAIN_DIST = path.join(__dirname, '../..');
 const RENDERER_DIST = path.join(MAIN_DIST, 'dist');
-const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
+const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL?.replace(
+  'localhost',
+  '127.0.0.1'
+);
 const VITE_PUBLIC = VITE_DEV_SERVER_URL
   ? path.join(MAIN_DIST, 'public')
   : RENDERER_DIST;
@@ -1440,11 +1443,11 @@ async function createWindow() {
   const needsInstallation = hasPrebuiltDeps
     ? false
     : !versionExists ||
-      savedVersion !== currentVersion ||
-      !uvExists ||
-      !bunExists ||
-      !installationCompleted ||
-      !venvExists;
+    savedVersion !== currentVersion ||
+    !uvExists ||
+    !bunExists ||
+    !installationCompleted ||
+    !venvExists;
 
   log.info('Installation check result:', {
     needsInstallation,
@@ -1540,21 +1543,16 @@ async function createWindow() {
 
   // Load content
   if (VITE_DEV_SERVER_URL) {
+    log.info(`Loading Dev Server URL: ${VITE_DEV_SERVER_URL}`);
     win.loadURL(VITE_DEV_SERVER_URL);
     win.webContents.openDevTools();
   } else {
+    log.info(`Loading file: ${indexHtml}`);
     win.loadFile(indexHtml);
   }
 
-  // Wait for window to be ready
-  await new Promise<void>((resolve) => {
-    win!.webContents.once('did-finish-load', () => {
-      log.info(
-        'Window content loaded, starting dependency check immediately...'
-      );
-      resolve();
-    });
-  });
+  // Wait for initial render
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Mark window as ready and process any queued protocol URLs
   isWindowReady = true;
@@ -1598,6 +1596,22 @@ async function createWindow() {
 // ==================== window event listeners ====================
 const setupWindowEventListeners = () => {
   if (!win) return;
+
+  win.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    const levels = ['debug', 'info', 'warn', 'error'];
+    const levelName = levels[level] || 'info';
+    log.info(`[RENDERER CONSOLE] [${levelName}] ${message} (${sourceId}:${line})`);
+  });
+
+  // Inject error capture
+  win.webContents.executeJavaScript(`
+    window.onerror = function(msg, url, line, col, error) {
+      console.log('GLOBAL ERROR: ' + msg + ' at ' + url + ':' + line + ':' + col);
+    };
+    window.onunhandledrejection = function(event) {
+      console.log('UNHANDLED REJECTION: ' + event.reason);
+    };
+  `);
 
   // close default menu
   Menu.setApplicationMenu(null);

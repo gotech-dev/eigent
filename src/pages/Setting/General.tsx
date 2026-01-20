@@ -48,7 +48,7 @@ export default function SettingGeneral() {
 	if (!chatStore) {
 		return <div>Loading...</div>;
 	}
-	
+
 
 	const [themeList, setThemeList] = useState<any>([
 		{
@@ -107,6 +107,10 @@ export default function SettingGeneral() {
 		{
 			key: LocaleEnum.Italian,
 			label: "Italiano",
+		},
+		{
+			key: LocaleEnum.Vietnamese,
+			label: "Tiếng Việt",
 		},
 	];
 
@@ -214,15 +218,13 @@ export default function SettingGeneral() {
 						>
 							<img
 								src={item.img}
-								className={`rounded-lg transition-all h-[91.67px] aspect-[183/91.67] border border-solid border-transparent group-hover:border-bg-fill-info-primary ${
-									item.value == appearance ? "border-bg-fill-info-primary" : ""
-								}`}
+								className={`rounded-lg transition-all h-[91.67px] aspect-[183/91.67] border border-solid border-transparent group-hover:border-bg-fill-info-primary ${item.value == appearance ? "border-bg-fill-info-primary" : ""
+									}`}
 								alt=""
 							/>
 							<div
-								className={`text-sm leading-13 text-text-primary group-hover:underline ${
-									item.value == appearance ? "underline" : ""
-								}`}
+								className={`text-sm leading-13 text-text-primary group-hover:underline ${item.value == appearance ? "underline" : ""
+									}`}
 							>
 								{t(item.label)}
 							</div>

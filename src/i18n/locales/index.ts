@@ -9,6 +9,7 @@ import ru from './ru'
 import it from './it'
 import ar from './ar'
 import ko from './ko'
+import vi from './vi'
 
 export const resources = {
   "en-US": {
@@ -43,5 +44,8 @@ export const resources = {
   },
   "ko": {
     translation: ko,
+  },
+  "vi": {
+    translation: vi,
   },
 };

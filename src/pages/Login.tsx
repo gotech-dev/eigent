@@ -296,14 +296,13 @@ export default function Login() {
       >
         {/* Left spacer for macOS */}
         <div
-          className={`${
-            platform === 'darwin' ? 'w-[70px]' : 'w-0'
-          } flex items-center justify-center`}
+          className={`${platform === 'darwin' ? 'w-[70px]' : 'w-0'
+            } flex items-center justify-center`}
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {platform === 'darwin' && (
             <span className="text-label-md text-text-heading font-bold">
-              Eigent
+              GO-AI
             </span>
           )}
         </div>

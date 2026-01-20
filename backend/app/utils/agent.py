@@ -9,6 +9,9 @@ from typing import Any, Callable, Dict, List, Tuple
 import uuid
 from utils import traceroot_wrapper as traceroot
 
+# Import GO-AI personality configuration
+from app.config.personality import get_personality_prefix, GOAI_PERSONALITY
+
 # Thread-safe reference to main event loop using contextvars
 # This ensures each request has its own event loop reference, avoiding race conditions
 _main_event_loop_var: contextvars.ContextVar[asyncio.AbstractEventLoop | None] = contextvars.ContextVar(
@@ -173,7 +176,7 @@ class ListenChatAgent(ChatAgent):
         pause_event: asyncio.Event | None = None,
         prune_tool_calls_from_memory: bool = False,
         enable_snapshot_clean: bool = False,
-        step_timeout: float | None = 900,
+        step_timeout: float | None = 3600,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -873,7 +876,8 @@ async def developer_agent(options: Chat):
         *terminal_toolkit.get_tools(),
         *screenshot_toolkit.get_tools(),
     ]
-    system_message = f"""
+    system_message = f"""{GOAI_PERSONALITY}
+
 <role>
 You are a Lead Software Engineer, a master-level coding assistant with a
 powerful and unrestricted terminal. Your primary role is to solve any
@@ -1242,6 +1246,17 @@ async def document_agent(options: Chat):
             options.project_id, Agents.task_agent
         ).send_message_to_user
     )
+    from app.utils.toolkit.docx_toolkit import DocxToolkit
+    from app.utils.toolkit.template_analysis_toolkit import TemplateAnalysisToolkit
+    
+    template_toolkit = TemplateAnalysisToolkit(
+        options.project_id, working_directory=working_directory
+    )
+    template_toolkit = message_integration.register_toolkits(template_toolkit)
+    docx_toolkit = DocxToolkit(
+        options.project_id, working_directory=working_directory
+    )
+    docx_toolkit = message_integration.register_toolkits(docx_toolkit)
     file_write_toolkit = FileToolkit(
         options.project_id, working_directory=working_directory
     )
@@ -1272,6 +1287,8 @@ async def document_agent(options: Chat):
     )
 
     tools = [
+        *template_toolkit.get_tools(),
+        *docx_toolkit.get_tools(),
         *file_write_toolkit.get_tools(),
         *pptx_toolkit.get_tools(),
         *HumanToolkit.get_can_use_tools(options.project_id, Agents.document_agent),
@@ -1315,9 +1332,39 @@ The current date is {NOW_STR}(Accurate to the hour). For any date-related tasks,
 - Before creating any document, you MUST use the `read_note` tool to gather
     all information collected by other team members by reading ALL notes.
 
+- **CRITICAL - MULTI-FILE WORKFLOW**: When the task includes multiple attached
+    files, you MUST identify their roles:
+    
+    **FILE TYPE 1 - TEMPLATE/SAMPLE (Format + Style):**
+    - Usually named with words like "mau", "template", "sample", "format"
+    - OR explicitly mentioned as "file mẫu" / "template" in the user's request
+    - For this file, call BOTH:
+      1. `analyze_document_structure` - to extract sections, headings, tables
+      2. `analyze_writing_style` - to understand tone, formality, sentence patterns
+    
+    **FILE TYPE 2 - REFERENCE CONTENT (Source Material):**
+    - Contains data, information, or content to be rewritten
+    - Usually named with "noi_dung", "content", "data", "info" or similar
+    - OR explicitly mentioned as "tài liệu nội dung" / "reference" in request
+    - Use `read_files` tool to extract and understand this content
+    
+    **WORKFLOW:**
+    1. First, analyze the TEMPLATE file for structure AND writing style
+    2. Then, read the REFERENCE file(s) for content/data
+    3. Write new document following template's format and style, using reference's content
+    4. Ensure output has same sections as template with data from reference
+
+- **TEMPLATE ADHERENCE**: Your generated document MUST:
+    1. Replicate exact same sections and subsections as the template
+    2. Match the template's table structures (same columns, similar detail level)
+    3. Use the same formality level and sentence patterns as the template
+    4. After writing, verify output matches template structure
+
 - You MUST use the available tools to create or modify documents (e.g.,
     `write_to_file`, `create_presentation`). Your primary output should be
     a file, not just content within your response.
+
+- If you need to create a Word document (.docx), you MUST use the `create_professional_docx` tool to ensure professional formatting (Times New Roman, size 13, proper headers, and no residual Markdown symbols).
 
 - If there's no specified format for the document/report/paper, you should use
     the `write_to_file` tool to create a HTML file.
@@ -1447,6 +1494,8 @@ supported formats including advanced spreadsheet functionality.
         options,
         tools,
         tool_names=[
+            TemplateAnalysisToolkit.toolkit_name(),
+            DocxToolkit.toolkit_name(),
             FileToolkit.toolkit_name(),
             PPTXToolkit.toolkit_name(),
             HumanToolkit.toolkit_name(),

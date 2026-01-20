@@ -1,14 +1,14 @@
 {
-  "name": "eigent",
+  "name": "go-ai",
   "version": "0.0.80",
   "main": "dist-electron/main/index.js",
-  "description": "Eigent",
-  "author": "Eigent.AI",
+  "description": "GO-AI - Trợ lý AI thông minh",
+  "author": "GoTech JSC",
   "license": "MIT",
   "private": true,
   "debug": {
     "env": {
-      "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:5173/"
     }
   },
   "type": "module",

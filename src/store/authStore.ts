@@ -1,5 +1,7 @@
+console.log('[authStore] Module loading');
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+console.log('[authStore] Dependencies imported');
 
 // type definition
 type InitState = 'permissions' | 'carousel' | 'done';

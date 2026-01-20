@@ -10,7 +10,9 @@ if str(_project_root) not in sys.path:
 from utils import traceroot_wrapper as traceroot
 from app import api
 from app.component.environment import auto_include_routers, env
+from app.controller import health_controller
 from fastapi.staticfiles import StaticFiles
+
 
 # Import middleware to register BabelMiddleware
 import app.middleware  # noqa: F401
@@ -27,7 +29,11 @@ if traceroot.is_enabled():
 logger = traceroot.get_logger("server_main")
 
 prefix = env("url_prefix", "")
+print(f"DEBUG: Prefix is '{prefix}'")
+print(f"DEBUG: CWD is {os.getcwd()}")
+print(f"DEBUG: Calling auto_include_routers with prefix='{prefix}' and dir='app/controller'")
 auto_include_routers(api, prefix, "app/controller")
+api.include_router(health_controller.router)
 public_dir = os.environ.get("PUBLIC_DIR") or os.path.join(
     os.path.dirname(__file__), "app", "public"
 )

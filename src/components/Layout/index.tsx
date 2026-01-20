@@ -14,16 +14,8 @@ import Halo from "../Halo";
 import useChatStoreAdapter from "@/hooks/useChatStoreAdapter";
 
 const Layout = () => {
-	const { initState, isFirstLaunch, setIsFirstLaunch, setInitState } = useAuthStore();
+	const { initState, isFirstLaunch, setIsFirstLaunch } = useAuthStore();
 	const [noticeOpen, setNoticeOpen] = useState(false);
-
-	//Get Chatstore for the active project's task
-	const { chatStore } = useChatStoreAdapter();
-	if (!chatStore) {
-		console.log(chatStore);
-
-		return <div>Loading...</div>;
-	}
 
 	const {
 		installationState,
@@ -36,12 +28,44 @@ const Layout = () => {
 		retryBackend,
 	} = useInstallationUI();
 
-	useInstallationSetup();
+	//Get Chatstore for the active project's task
+	const { chatStore } = useChatStoreAdapter();
+
+	// Determine what to show based on states
+	const shouldShowOnboarding = initState === "done" && isFirstLaunch && !isInstalling;
+	const actualShouldShowInstallScreen = shouldShowInstallScreen || initState !== 'done' || installationState === 'waiting-backend';
+
+	// If we need to show install screen, return it immediately to avoid blocking by chatStore check
+	if (actualShouldShowInstallScreen) {
+		return (
+			<div className="h-full flex flex-col relative overflow-hidden">
+				<TopBar />
+				<div className="flex-1 h-full min-h-0 overflow-hidden relative">
+					<InstallDependencies />
+				</div>
+			</div>
+		);
+	}
+
+	if (!chatStore) {
+		console.log(chatStore);
+		return (
+			<div className="h-full flex flex-col relative overflow-hidden">
+				<TopBar />
+				<div className="flex-1 h-full min-h-0 overflow-hidden relative flex items-center justify-center">
+					<div className="flex flex-col items-center gap-4">
+						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+						<div className="text-text-label text-sm">Đang tải dữ liệu...</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	useEffect(() => {
 		const handleBeforeClose = () => {
 			const currentStatus = chatStore.tasks[chatStore.activeTaskId as string]?.status;
-			if(["running", "pause"].includes(currentStatus)) {
+			if (["running", "pause"].includes(currentStatus)) {
 				setNoticeOpen(true);
 			} else {
 				window.electronAPI.closeWindow(true);
@@ -56,9 +80,8 @@ const Layout = () => {
 	}, [chatStore.tasks, chatStore.activeTaskId]);
 
 	// Determine what to show based on states
-	const shouldShowOnboarding = initState === "done" && isFirstLaunch && !isInstalling;
-
-	const actualShouldShowInstallScreen = shouldShowInstallScreen || initState !== 'done' || installationState === 'waiting-backend';
+	// const shouldShowOnboarding = initState === "done" && isFirstLaunch && !isInstalling;
+	// const actualShouldShowInstallScreen = shouldShowInstallScreen || initState !== 'done' || installationState === 'waiting-backend';
 	const shouldShowMainContent = !actualShouldShowInstallScreen;
 
 	return (
@@ -101,7 +124,7 @@ const Layout = () => {
 				/>
 				<Halo />
 			</div>
-			</div>
+		</div>
 	);
 };
 

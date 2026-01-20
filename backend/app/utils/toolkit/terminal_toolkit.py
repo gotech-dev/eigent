@@ -63,13 +63,11 @@ class TerminalToolkit(BaseTerminalToolkit, AbstractToolkit):
             session_logs_dir=session_logs_dir,
             safe_mode=safe_mode,
             allowed_commands=allowed_commands,
-            clone_current_env=clone_current_env,
+            clone_current_env=False,
             install_dependencies=[
-                "pandas",
-                "numpy",
-                "matplotlib",
                 "requests",
-                "openpyxl",
+                "python-docx",
+                "docx",
             ],
         )
         

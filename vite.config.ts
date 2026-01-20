@@ -24,7 +24,27 @@ export default defineConfig(({ command, mode }) => {
     },
     optimizeDeps: {
       exclude: ['@stackframe/react'],
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'zustand',
+        'i18next',
+        'react-i18next',
+        'use-sync-external-store/shim/with-selector',
+        'extend'
+      ],
+      esbuildOptions: {
+        loader: {
+          '.js': 'jsx',
+        },
+      },
       force: true,
+    },
+    build: {
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
     },
     plugins: [
       react(),
@@ -37,6 +57,7 @@ export default defineConfig(({ command, mode }) => {
               console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
             } else {
               args.startup()
+              // console.log('[startup] Electron manual start required')
             }
           },
           vite: {

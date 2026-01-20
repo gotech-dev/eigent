@@ -21,6 +21,8 @@ dependencies = [
     "nodejs-wheel>=22.18.0",
     "numpy>=1.23.0,<2.0.0",
     "debugpy>=1.8.17",
+    "python-docx>=1.2.0",
+    "pypdf>=6.6.0",
 ]
 
 

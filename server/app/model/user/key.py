@@ -1,4 +1,4 @@
-from enum import IntEnum, StrEnum
+from enum import IntEnum, Enum
 from typing import Optional
 from pydantic import BaseModel, computed_field
 from sqlmodel import Field, Column, SmallInteger
@@ -7,7 +7,7 @@ from app.component.environment import env_not_empty
 from app.model.abstract.model import AbstractModel, DefaultTimes
 
 
-class ModelType(StrEnum):
+class ModelType(str, Enum):
     gpt4_1 = "gpt-4.1"
     gpt4_mini = "gpt-4.1-mini"
     gemini_2_5_pro = "gemini/gemini-2.5-pro"

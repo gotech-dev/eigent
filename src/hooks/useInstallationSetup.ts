@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/authStore";
  * This should be called once in your App component or Layout component
  */
 export const useInstallationSetup = () => {
+  console.error("[useInstallationSetup] Hook initialized globally in App.tsx - FORCE LOG");
   const { initState, setInitState, email } = useAuthStore();
 
   const hasCheckedOnMount = useRef(false);

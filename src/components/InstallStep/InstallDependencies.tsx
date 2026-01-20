@@ -35,7 +35,8 @@ export const InstallDependencies: React.FC = () => {
 				</div>
 				<div>
 					{initState === "permissions" && <Permissions />}
-					{initState === "carousel" && installationState !== 'waiting-backend' && <CarouselStep />}
+					{(initState === "carousel" || initState === "done") && installationState !== 'waiting-backend' && installationState !== 'completed' && <CarouselStep />}
+					{installationState === 'waiting-backend' && <CarouselStep />}
 				</div>
 			</div>
 		</div>

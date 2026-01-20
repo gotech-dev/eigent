@@ -4,9 +4,11 @@ import { ArrowRight, Square, SquareCheckBig } from "lucide-react";
 import { Button } from "../ui/button";
 import { proxyFetchGet, proxyFetchPut } from "@/api/http";
 import privacy_settings from '@/assets/privacy_settings.png'
+import { useTranslation } from "react-i18next";
 
 export const Permissions: React.FC = () => {
 	const { setInitState } = useAuthStore();
+	const { t } = useTranslation();
 	const API_FIELDS = [
 		"take_screenshot",
 		"access_local_software",
@@ -15,19 +17,23 @@ export const Permissions: React.FC = () => {
 	];
 	const [settings, setSettings] = useState([
 		{
-			title: "Enable screen recording",
+			title: t("layout.allow-agent-to-take-screenshots"),
+			description: t("layout.permit-the-agent-to-capture"),
 			checked: false,
 		},
 		{
-			title: "Enable access Local Software",
+			title: t("layout.allow-agent-to-access-local-software"),
+			description: t("layout.grant-the-agent-permission"),
 			checked: false,
 		},
 		{
-			title: "Grant location access",
+			title: t("layout.allow-agent-to-access-your-address"),
+			description: t("layout.authorize-the-agent-to-view"),
 			checked: false,
 		},
 		{
-			title: "Share data to enhance Eigent",
+			title: t("layout.password-storage"),
+			description: t("layout.determine-how-passwords-are-handled"),
 			checked: false,
 		},
 	]);
@@ -71,10 +77,10 @@ export const Permissions: React.FC = () => {
 			<div className="flex gap-md h-[568px] ">
 				<div className=" flex flex-col gap-md w-[438px]">
 					<div className="text-text-heading font-bold text-4xl leading-5xl">
-						<div>Enable Permissions</div>
+						<div>{t("layout.turn-on-all-privacy-settings")}</div>
 					</div>
 					<div className="text-text-body text-xl leading-2xl font-medium">
-						Grant permission to activate the Agent's autonomous actions.
+						{t("layout.eigent-is-a-desktop-software")}
 					</div>
 					{settings.map((item, index) => (
 						<div
@@ -89,8 +95,13 @@ export const Permissions: React.FC = () => {
 									<Square size={24} className="text-icon-primary" />
 								)}
 							</div>
-							<div className="flex-1 text-text-body font-medium leading-2xl text-xl">
-								{item.title}
+							<div className="flex-1 flex flex-col">
+								<div className="text-text-body font-medium leading-2xl text-xl">
+									{item.title}
+								</div>
+								<div className="text-text-label text-sm">
+									{item.description}
+								</div>
 							</div>
 						</div>
 					))}
@@ -100,21 +111,21 @@ export const Permissions: React.FC = () => {
 				</div>
 			</div>
 			<div className="flex justify-end items-center gap-sm">
-				
+
 				<div className="flex  justify-center items-center gap-sm">
 					<Button
 						onClick={() => setInitState("carousel")}
 						variant="ghost"
 						size="sm"
 					>
-						skip
+						{t("layout.cancel")}
 					</Button>
 					<Button
 						onClick={() => setInitState("carousel")}
 						variant="primary"
 						size="sm"
 					>
-						<div>Next</div>
+						<div>{t("layout.continue")}</div>
 						<ArrowRight size={24} className="text-white-100%" />
 					</Button>
 				</div>

@@ -88,6 +88,7 @@ def auto_include_routers(api: FastAPI, prefix: str, directory: str):
 
     # 将目录转换为绝对路径
     dir_path = Path(directory).resolve()
+    print(f"DEBUG: Scanning directory {dir_path}")
     router_count = 0
 
     # 遍历目录下所有.py文件
