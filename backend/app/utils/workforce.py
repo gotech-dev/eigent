@@ -147,13 +147,34 @@ class Workforce(BaseWorkforce):
 
     def _decompose_task(self, task: Task, stream_callback=None):
         """Decompose task with optional streaming text callback."""
-        decompose_prompt = str(
+        # Base decomposition prompt from CAMEL
+        base_prompt = str(
             TASK_DECOMPOSE_PROMPT.format(
                 content=task.content,
                 child_nodes_info=self._get_child_nodes_info(),
                 additional_info=task.additional_info,
             )
         )
+        
+        # Inject parallel execution guidance for document generation tasks
+        parallel_guidance = """
+
+IMPORTANT - TASK DEPENDENCIES FOR PARALLEL EXECUTION:
+When decomposing tasks into chapters/sections for document generation:
+1. The "Extract Data" or "raw_data" task should have NO dependencies.
+2. "Write Chapter 1", "Write Chapter 2", "Write Chapter 3" should ALL depend ONLY on "raw_data" - NOT on each other. This allows them to run IN PARALLEL.
+3. ONLY the "Merge" task should depend on ALL chapter tasks.
+4. ONLY the "Convert to DOCX" task should depend on "Merge".
+
+Example dependency graph for parallel execution:
+- raw_data: []
+- chapter1: [raw_data]
+- chapter2: [raw_data]  # Can run parallel with chapter1
+- chapter3: [raw_data]  # Can run parallel with chapter1 and chapter2
+- merge: [chapter1, chapter2, chapter3]
+- convert: [merge]
+"""
+        decompose_prompt = base_prompt + parallel_guidance
 
         self.task_agent.reset()
         result = task.decompose(

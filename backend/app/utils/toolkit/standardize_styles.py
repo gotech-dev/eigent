@@ -46,6 +46,8 @@ def standardize_reference_styles(input_path, output_path):
         if para.text.isupper() and para.alignment == WD_ALIGN_PARAGRAPH.CENTER and para.text.strip():
             style = get_or_create_style(doc, 'Heading 1', 1)
             copy_para_props_to_style(para, style)
+            # Ensure Heading 1 is centered (for Vietnamese administrative documents)
+            style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
             print(f"Standardized 'Heading 1' style from: '{para.text[:30]}...'")
             break
 

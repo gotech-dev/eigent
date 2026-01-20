@@ -1453,13 +1453,25 @@ appropriate sheet naming conventions
     1.  Read the "Style File" to analyze its writing style (Văn phong), tone, and structure.
     2.  Call `standardize_reference(reference_doc_path=StyleFile_Path)` to prepare the template. Save the returned path.
 
-    **PHASE 3: CONTENT GENERATION (Multi-Stage)**
+    **PHASE 3: CONTENT GENERATION (Multi-Stage with Length Requirements)**
     1.  **Outline**: Create an outline matching the Style File's structure.
     2.  **Section Writing**: For each section, write detailed content that:
-        - **INCLUDES** all relevant data from `raw_data.md` (tables, numbers, specs).
+        - **INCLUDES** all relevant data from `raw_data.md`.
         - **Imitates** the writing style from the Style File.
+        - **MEETS LENGTH REQUIREMENT**: Each chapter must have at least 3000 words.
         - Save each section to a separate file (e.g., `chapter1.md`).
     3.  **Merge**: Use `merge_files` to combine all sections into `final_content.md`.
+
+    **CONTENT ALLOCATION RULES (CRITICAL - AVOID DUPLICATION):**
+    - **Chương 1 (Giới thiệu)**: Bối cảnh, mục tiêu, căn cứ pháp lý. KHÔNG chứa bảng giá.
+    - **Chương 2 (Giải pháp kỹ thuật)**: BẢNG TÍNH NĂNG (STT, Tính năng, Ghi chú). KHÔNG có cột Giá.
+    - **Chương 3 (Kế hoạch & Dự toán)**: BẢNG DỰ TOÁN (bao gồm cột Giá). KHÔNG lặp lại mô tả tính năng.
+
+    **CONTENT EXPANSION TECHNIQUE (Triple Expansion):**
+    For EACH feature in `raw_data.md`, write 3 parts:
+    1. **What**: Describe the feature and explain technical terms.
+    2. **How**: Explain how it works technically (WebXR, AI, Cloud, etc.).
+    3. **Why**: Benefits for STEM education with practical examples.
 
     **PHASE 4: DOCX CONVERSION**
     1.  Call `convert_text_to_docx`:
@@ -1468,17 +1480,7 @@ appropriate sheet naming conventions
         - `extra_args`: Do **NOT** use `--toc` (it causes formatting issues). Write the Table of Contents manually in Markdown if needed.
 
     **MARKDOWN MAPPING RULES**:
-    - **National Motto (Quốc hiệu)**: Write it as a CENTERED HEADING, NOT as `% Title` metadata:
-      ```markdown
-      <div style="text-align: center">
-
-      **CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM**
-
-      *Độc lập - Tự do - Hạnh phúc*
-
-      </div>
-      ```
-      (Note: If Pandoc doesn't support this, write it as a level-1 heading `# CỘNG HOÀ...` with explicit center instructions in the reference doc's Title style.)
+    - **National Motto (Quốc hiệu)**: Use `# CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM` as Heading 1.
     - **Heading 1**: Use `# Heading Text`.
     - **Heading 2**: Use `## Heading Text`.
     - **Tables**: Use Markdown table syntax `| Col1 | Col2 |`.
