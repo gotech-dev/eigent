@@ -1439,27 +1439,50 @@ appropriate sheet naming conventions
   graphs, and save them as image files that can be embedded in documents.
 
 - For DOCX Style Transfer and High-Detail Content Generation:
-  - If the user provides a "Style File", "Template File", or "Target File" (File 1) and asks for the new document to have the same format, you MUST:
-    1.  **Analyze & Standardize**:
-        - Read File 1 first using `read_files` to analyze its **writing style (Văn phong)**.
-        - Call `standardize_reference(reference_doc_path=File1_Path)` to prepare a template where manual formatting is converted to standard Word styles (Title, Heading 1, etc.). Use the returned path as your `reference_doc_path` in subsequent steps.
-    2.  **Mapping Markdown to Word Styles**: Strictly follow this mapping to ensure visual consistency:
-        - **National Motto / Main Title**: Use the following Markdown syntax at the very top to trigger the "Title" style (which is Centered and Bold):
-          ```markdown
-          % CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM
-          % Độc lập - Tự do - Hạnh phúc
-          ```
-        - **Heading 1**: Use `# Heading Text` (maps to Heading 1 style - Centered/Bold).
-        - **Heading 2**: Use `## Heading Text` (maps to Heading 2 style - Left/Bold).
-        - **Normal Text**: Use plain Markdown paragraphs.
-    3.  **Forbid Manual Pandoc**: NEVER run `pandoc` manually from the terminal. ALWAYS use the `convert_text_to_docx` or `convert_file_to_docx` tools.
-    4.  **Multi-Stage Workflow for Long Documents ( > 5 pages)**:
-        - To ensure high detail and avoid LLM length limits:
-        - **Step A: Outline Stage**: Generate a detailed outline with chapters and sub-sections.
-        - **Step B: Section Stage**: Use the "Workforce" strategy—generate each major section/chapter as a separate Markdown file.
-        - **Step C: Merge Stage**: Use `merge_files` to combine the Markdown sections.
-        - **Step D: Conversion Stage**: Call `convert_text_to_docx`. Pass the full Markdown as `content`, the **standardized** path from step 1 as `reference_doc_path`, and use `extra_args=["--toc", "--number-sections"]`.
-  - **Content Preservation**: If updating File 1, read it first and ensure original content is merged into your generated Markdown instead of being replaced.
+  - If the user provides a "Style File" (for formatting) and a "Content File" (for data), you MUST follow this STRICT workflow:
+
+    **PHASE 1: RAW DATA EXTRACTION (CRITICAL - DO NOT SKIP)**
+    1.  Read the "Content File" using `read_files`.
+    2.  Create a file named `raw_data.md` containing:
+        - **All tables copied EXACTLY as Markdown Tables**. Use `| Column1 | Column2 |` syntax.
+        - **All numbers, prices, and technical specs copied verbatim**.
+        - Do NOT summarize or paraphrase. This is a direct extraction.
+    3.  Verify `raw_data.md` is complete before proceeding.
+
+    **PHASE 2: STYLE ANALYSIS**
+    1.  Read the "Style File" to analyze its writing style (Văn phong), tone, and structure.
+    2.  Call `standardize_reference(reference_doc_path=StyleFile_Path)` to prepare the template. Save the returned path.
+
+    **PHASE 3: CONTENT GENERATION (Multi-Stage)**
+    1.  **Outline**: Create an outline matching the Style File's structure.
+    2.  **Section Writing**: For each section, write detailed content that:
+        - **INCLUDES** all relevant data from `raw_data.md` (tables, numbers, specs).
+        - **Imitates** the writing style from the Style File.
+        - Save each section to a separate file (e.g., `chapter1.md`).
+    3.  **Merge**: Use `merge_files` to combine all sections into `final_content.md`.
+
+    **PHASE 4: DOCX CONVERSION**
+    1.  Call `convert_text_to_docx`:
+        - `content`: The full content from `final_content.md`.
+        - `reference_doc_path`: The **standardized** path from Phase 2.
+        - `extra_args`: Do **NOT** use `--toc` (it causes formatting issues). Write the Table of Contents manually in Markdown if needed.
+
+    **MARKDOWN MAPPING RULES**:
+    - **National Motto (Quốc hiệu)**: Write it as a CENTERED HEADING, NOT as `% Title` metadata:
+      ```markdown
+      <div style="text-align: center">
+
+      **CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM**
+
+      *Độc lập - Tự do - Hạnh phúc*
+
+      </div>
+      ```
+      (Note: If Pandoc doesn't support this, write it as a level-1 heading `# CỘNG HOÀ...` with explicit center instructions in the reference doc's Title style.)
+    - **Heading 1**: Use `# Heading Text`.
+    - **Heading 2**: Use `## Heading Text`.
+    - **Tables**: Use Markdown table syntax `| Col1 | Col2 |`.
+  - **Content Preservation**: If updating an existing document, read it first and merge new information into it.
 
 </document_creation_workflow>
 

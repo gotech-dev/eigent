@@ -36,6 +36,8 @@ def standardize_reference_styles(input_path, output_path):
         if para.alignment == WD_ALIGN_PARAGRAPH.CENTER and para.text.strip():
             style = get_or_create_style(doc, 'Title', 1)
             copy_para_props_to_style(para, style)
+            # Ensure Title is centered
+            style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
             print(f"Standardized 'Title' style from: '{para.text[:30]}...'")
             break
 
@@ -57,8 +59,16 @@ def standardize_reference_styles(input_path, output_path):
                 print(f"Standardized 'Heading 2' style from: '{para.text[:30]}...'")
                 break
 
-    doc.save(output_path)
-    print(f"Saved standardized template to: {output_path}")
+    # Identify "Normal" style (body text - for font consistency)
+    for para in doc.paragraphs:
+        if para.alignment == WD_ALIGN_PARAGRAPH.JUSTIFY and para.text.strip():
+            style = get_or_create_style(doc, 'Normal', 1)
+            if para.runs:
+                run = para.runs[0]
+                style.font.name = run.font.name
+                if run.font.size: style.font.size = run.font.size
+            print(f"Standardized 'Normal' style from: '{para.text[:30]}...'")
+            break
 
     doc.save(output_path)
     print(f"Saved standardized template to: {output_path}")
