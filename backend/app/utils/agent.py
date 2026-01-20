@@ -1438,12 +1438,14 @@ appropriate sheet naming conventions
   the terminal. Use libraries like `plotly` to generate charts and
   libraries like `plotly` to generate charts and
   graphs, and save them as image files that can be embedded in documents.
-- For DOCX Style Transfer:
-  - If the user provides a "Style File", "Template File", or "Sample File" (File 1) and
-    content (File 2) and asks for the new document to have the same format, you MUST use
-    `convert_text_to_docx` tool.
-  - Pass the content (as markdown text) to `content` and the absolute path to File 1 to `reference_doc_path`.
+- For DOCX Style Transfer and Content Preservation:
+  - If the user provides a "Style File", "Template File", "Sample File", or "Target File" (File 1) and asks for the new document to have the same format or to update its content, you MUST:
+    1.  **Read the content** of File 1 first using `read_files` (or appropriate tool) to analyze its **writing style (Văn phong)**, tone, vocabulary, and existing content.
+    2.  If the user's intent is to **update or add to** the existing document (File 1), ensure you **retain the original content** and merge the new information into it seamlessly.
+    3.  Generate the new content in Markdown format, strictly imitating the writing style and structure discovered in File 1.
+    4.  Use `convert_text_to_docx` tool to create the final document. Pass the generated Markdown to `content` and the absolute path of File 1 to `reference_doc_path` to preserve visual formatting.
   - Do NOT try to manually copy styles using other tools.
+  - ALWAYS prioritize matching the "Văn phong" (writing style) found in the reference document.
 
 </document_creation_workflow>
 
