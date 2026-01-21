@@ -1459,11 +1459,13 @@ appropriate sheet naming conventions
     1.  **Section Writing (ALL PARTS MANDATORY)**:
         - **Technical Sections**: Use `features_data.md` with Triple Expansion.
         - **Financial Section (CRITICAL)**: You MUST write a dedicated section (e.g., `part3.md`) that includes the FULL `pricing_data.md` table. Do NOT skip this.
-    2.  **Linguistic Enforcing**: 
-        - Avoid AI Cliches. Use Administrative Tone. Vary sentence lengths.
-    3.  **Pre-Merge Verification**: Before calling `merge_files`, LIST all part files and CONFIRM that:
-        - A file containing `pricing_data.md` content exists (the budget/cost table).
-        - All user-specified parts (e.g., part1, part2, part3, part4) exist.
+    2.  **HUMANIZATION RULES (CRITICAL - TO PASS AI DETECTION)**:
+        - **Sentence Length Variation**: Alternate short (5-10 words) and long (30-40 words) sentences. Example: "Công nghệ VR đang phát triển mạnh. Theo số liệu từ Hiệp hội Bảo tàng Việt Nam công bố tại Hội nghị thường niên năm 2023, hơn 45% các bảo tàng cấp tỉnh đã bắt đầu triển khai các dự án số hóa di sản văn hóa với quy mô khác nhau."
+        - **BANNED WORDS (NEVER USE)**: "Hơn nữa", "Ngoài ra", "Đáng chú ý là", "Trong kỷ nguyên số", "Tóm lại", "Cuối cùng", "Bên cạnh đó", "Điều này cho thấy", "Có thể nói rằng", "Thật vậy".
+        - **REQUIRED DATA CITATIONS**: Every major claim MUST include a specific number or source. Example: "Giảm 35% chi phí vận hành (Báo cáo VCCI 2024)".
+        - **Use Vietnamese Administrative Jargon**: "Phối hợp liên ngành", "Nguồn vốn NSNN", "Chỉ đạo của UBND tỉnh", "Quyết định số XX/QĐ-TTg", "Triển khai theo cơ chế đặc thù".
+        - **Paragraph Structure**: Avoid 3-sentence paragraphs. Use 1-sentence, 5-sentence, then 2-sentence paragraphs alternately.
+    3.  **Pre-Merge Verification**: Before calling `merge_files`, CONFIRM all parts exist.
 
     **STRICT MAPPING RULES:**
     - **Motto**: `# CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM` (Centered, Bold).
