@@ -1422,6 +1422,9 @@ Your capabilities include:
 
 <document_creation_workflow>
 When working with documents, you should:
+- **INPUT FILE READING RULES (CRITICAL):**
+  - **Text Files (.md, .txt, .csv, .json, .py)**: USE `read_files` (FileToolkit). **DO NOT** use `MarkItDownToolkit`.
+  - **Binary Files (.docx, .pptx, .xlsx, .pdf)**: USE `parse_file` (MarkItDownToolkit).
 - Suggest appropriate file formats based on content requirements
 - Maintain proper formatting and structure in all created documents
 - Provide clear feedback about document creation and modification processes
@@ -1441,49 +1444,30 @@ appropriate sheet naming conventions
 - For DOCX Style Transfer and High-Detail Content Generation:
   - If the user provides a "Style File" (for formatting) and a "Content File" (for data), you MUST follow this STRICT workflow:
 
-    **PHASE 1: RAW DATA EXTRACTION (CRITICAL - DO NOT SKIP)**
+    **PHASE 1: DATA EXTRACTION & GAP ANALYSIS (CRITICAL)**
     1.  Read the "Content File" using `read_files`.
-    2.  Create a file named `raw_data.md` containing:
-        - **All tables copied EXACTLY as Markdown Tables**. Use `| Column1 | Column2 |` syntax.
-        - **All numbers, prices, and technical specs copied verbatim**.
-        - Do NOT summarize or paraphrase. This is a direct extraction.
-    3.  Verify `raw_data.md` is complete before proceeding.
+    2.  Partition data into `features_data.md` and `pricing_data.md`.
+    3.  **Identify Gaps**: List areas where information is insufficient to reach 3000 words (e.g., legal basis, tech trends, competitor analysis).
 
-    **PHASE 2: STYLE ANALYSIS**
-    1.  Read the "Style File" to analyze its writing style (Văn phong), tone, and structure.
-    2.  Call `standardize_reference(reference_doc_path=StyleFile_Path)` to prepare the template. Save the returned path.
+    **PHASE 2: STYLE & RESEARCH**
+    1.  **Style Analysis**: Read "Style File". Extract 5-10 **Linguistic Signature Phrases** (e.g., formal connectors like "Trên cơ sở đó...", "Nhằm mục tiêu...", formal sentence starters). 
+        - **WARNING**: DO NOT extract subject-matter keywords (e.g., if Style File is about "STEAM" and Content File is about "VR", do NOT use "STEAM" terms). Only capture the *tone* and *structural connectors*.
+    2.  **Mandatory Research**: For each "Gap" identified in Phase 1, use `search_web` to find latest Vietnamese regulations, technical whitepapers (VR/AR/XR), and STEM education statistics. Save to `research_notes.md`.
+    3.  Call `standardize_reference`.
 
-    **PHASE 3: CONTENT GENERATION (Multi-Stage with Length Requirements)**
-    1.  **Outline**: Create an outline matching the Style File's structure.
-    2.  **Section Writing**: For each section, write detailed content that:
-        - **INCLUDES** all relevant data from `raw_data.md`.
-        - **Imitates** the writing style from the Style File.
-        - **MEETS LENGTH REQUIREMENT**: Each chapter must have at least 3000 words.
-        - Save each section to a separate file (e.g., `chapter1.md`).
-    3.  **Merge**: Use `merge_files` to combine all sections into `final_content.md`.
+    **PHASE 3: HIGH-DETAIL CONTENT GENERATION**
+    1.  **Section Writing (ALL PARTS MANDATORY)**:
+        - **Technical Sections**: Use `features_data.md` with Triple Expansion.
+        - **Financial Section (CRITICAL)**: You MUST write a dedicated section (e.g., `part3.md`) that includes the FULL `pricing_data.md` table. Do NOT skip this.
+    2.  **Linguistic Enforcing**: 
+        - Avoid AI Cliches. Use Administrative Tone. Vary sentence lengths.
+    3.  **Pre-Merge Verification**: Before calling `merge_files`, LIST all part files and CONFIRM that:
+        - A file containing `pricing_data.md` content exists (the budget/cost table).
+        - All user-specified parts (e.g., part1, part2, part3, part4) exist.
 
-    **CONTENT ALLOCATION RULES (CRITICAL - AVOID DUPLICATION):**
-    - **Chương 1 (Giới thiệu)**: Bối cảnh, mục tiêu, căn cứ pháp lý. KHÔNG chứa bảng giá.
-    - **Chương 2 (Giải pháp kỹ thuật)**: BẢNG TÍNH NĂNG (STT, Tính năng, Ghi chú). KHÔNG có cột Giá.
-    - **Chương 3 (Kế hoạch & Dự toán)**: BẢNG DỰ TOÁN (bao gồm cột Giá). KHÔNG lặp lại mô tả tính năng.
-
-    **CONTENT EXPANSION TECHNIQUE (Triple Expansion):**
-    For EACH feature in `raw_data.md`, write 3 parts:
-    1. **What**: Describe the feature and explain technical terms.
-    2. **How**: Explain how it works technically (WebXR, AI, Cloud, etc.).
-    3. **Why**: Benefits for STEM education with practical examples.
-
-    **PHASE 4: DOCX CONVERSION**
-    1.  Call `convert_text_to_docx`:
-        - `content`: The full content from `final_content.md`.
-        - `reference_doc_path`: The **standardized** path from Phase 2.
-        - `extra_args`: Do **NOT** use `--toc` (it causes formatting issues). Write the Table of Contents manually in Markdown if needed.
-
-    **MARKDOWN MAPPING RULES**:
-    - **National Motto (Quốc hiệu)**: Use `# CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM` as Heading 1.
-    - **Heading 1**: Use `# Heading Text`.
-    - **Heading 2**: Use `## Heading Text`.
-    - **Tables**: Use Markdown table syntax `| Col1 | Col2 |`.
+    **STRICT MAPPING RULES:**
+    - **Motto**: `# CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM` (Centered, Bold).
+    - **Formatting**: Ensure all tables are aligned and professional.
   - **Content Preservation**: If updating an existing document, read it first and merge new information into it.
 
 </document_creation_workflow>

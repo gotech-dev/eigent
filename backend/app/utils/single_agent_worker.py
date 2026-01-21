@@ -117,9 +117,11 @@ class SingleAgentWorker(BaseSingleAgentWorker):
                 task_result = self.structured_handler.parse_structured_response(
                     response_text=response_content,
                     schema=TaskResult,
+                    # IMPROVED FALLBACK: Use actual response content if JSON parsing fails
+                    # This preserves the work done by the agent even when output format is wrong
                     fallback_values={
-                        "content": "Task processing failed",
-                        "failed": True,
+                        "content": response_content if response_content else "Task processing failed - no content",
+                        "failed": False if response_content else True,
                     },
                 )
             else:

@@ -58,7 +58,16 @@ def standardize_reference_styles(input_path, output_path):
              if para.alignment != WD_ALIGN_PARAGRAPH.CENTER:
                 style = get_or_create_style(doc, 'Heading 2', 1)
                 copy_para_props_to_style(para, style)
+                # For Vietnamese administrative docs, sub-headings in Motto or major sections are often centered
+                # We align this with the reference but ensure a standard for transfer
                 print(f"Standardized 'Heading 2' style from: '{para.text[:30]}...'")
+                break
+             elif para.alignment == WD_ALIGN_PARAGRAPH.CENTER:
+                # If it's the second centered line (Motto part 2), use it for Heading 2
+                style = get_or_create_style(doc, 'Heading 2', 1)
+                copy_para_props_to_style(para, style)
+                style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                print(f"Standardized 'Heading 2' style (Centered) from: '{para.text[:30]}...'")
                 break
 
     # Identify "Normal" style (body text - for font consistency)
@@ -69,6 +78,8 @@ def standardize_reference_styles(input_path, output_path):
                 run = para.runs[0]
                 style.font.name = run.font.name
                 if run.font.size: style.font.size = run.font.size
+            # Capture body text alignment (Standard for VN is JUSTIFY)
+            style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
             print(f"Standardized 'Normal' style from: '{para.text[:30]}...'")
             break
 
